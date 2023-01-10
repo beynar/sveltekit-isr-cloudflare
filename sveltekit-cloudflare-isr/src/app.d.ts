@@ -11,7 +11,5 @@ declare namespace App {
     };
     caches?: CacheStorage & { default: Cache };
   }
-  interface Locals {
-    // cache: import("./types").Fetcher;
-  }
+  interface Locals {}
 }

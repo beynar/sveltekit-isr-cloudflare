@@ -2,11 +2,11 @@ import { Handle } from "@sveltejs/kit/types/internal";
 import type { FetchWithCacheConfig, Fetcher } from "./types";
 import { durationToMilliseconds, generateHash, makeCacheableResponse } from "./utils";
 
-export const cacheHook =
+export const isr =
   (
     {
       key,
-      cache,
+      cacheName,
       shouldAvoidCache = () => false,
       shouldRefreshCache = () => false,
       longTermCacheDuration = "1 year",
@@ -27,7 +27,7 @@ export const cacheHook =
         return init || {};
       };
 
-      const { duration, forceRefresh, avoidCache } = requestIsr || {};
+      const { duration, forceRefresh, avoidCache, swr = true } = requestIsr || {};
       const { platform } = event as { platform: App.Platform };
       const request = new Request(input, getInit());
       const programmaticRevalidation = event.request.headers.get("x-revalidate") === "true";
@@ -38,7 +38,7 @@ export const cacheHook =
 
       return new Promise(async (res) => {
         const CACHE = (
-          cache === "default" || !cache ? platform?.caches?.default : await platform?.caches?.open(cache)
+          cacheName === "default" || !cacheName ? platform?.caches?.default : await platform?.caches?.open(cacheName)
         ) as Cache;
         const KV = KVNamespace ? platform?.env?.[KVNamespace] : undefined;
         if (CACHE) {
@@ -79,9 +79,16 @@ export const cacheHook =
             if (isExpired) {
               console.log("cache expired", hash);
               revalidate();
+              if (!swr) {
+                return res(fetch(request));
+              }
             }
             return res(match);
           } else {
+            if (!swr) {
+              revalidate();
+              return res(fetch(request));
+            }
             if (KV) {
               const kvMatch = await KV.get(hash, "text");
 
