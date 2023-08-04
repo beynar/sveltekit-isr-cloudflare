@@ -1,4 +1,4 @@
-import { Handle } from "@sveltejs/kit/types/internal";
+import { Handle } from "@sveltejs/kit";
 import type { FetchWithCacheConfig, Fetcher } from "./types";
 import { durationToMilliseconds, generateHash, makeCacheableResponse } from "./utils";
 

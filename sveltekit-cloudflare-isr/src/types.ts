@@ -1,4 +1,4 @@
-import type { MaybePromise, RequestEvent } from "@sveltejs/kit/types/internal";
+import type { MaybePromise, RequestEvent } from "@sveltejs/kit";
 
 export type duration =
   | `${number} ${"second" | "minute" | "hour" | "day" | "week" | "month" | "year"}${"s" | ""}`
